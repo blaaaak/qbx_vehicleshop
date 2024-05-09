@@ -43,12 +43,15 @@ end
 
 ---@param data VehicleFinanceClient
 local function showVehicleFinanceMenu(data)
-    local vehLabel = VEHICLES[data.vehicle].brand..' '..VEHICLES[data.vehicle].name
+    local vehLabel = VEHICLES[data.vehicle].brand .. ' ' .. VEHICLES[data.vehicle].name
     local vehFinance = {
         {
             title = 'Finance Information',
             icon = 'circle-info',
-            description = string.format('Name: %s\nPlate: %s\nRemaining Balance: $%s\nRecurring Payment Amount: $%s\nPayments Left: %s', vehLabel, data.vehiclePlate, lib.math.groupdigits(data.balance), lib.math.groupdigits(data.paymentAmount), data.paymentsLeft),
+            description = string.format(
+                'Name: %s\nPlate: %s\nRemaining Balance: $%s\nRecurring Payment Amount: $%s\nPayments Left: %s', vehLabel,
+                data.vehiclePlate, lib.math.groupdigits(data.balance), lib.math.groupdigits(data.paymentAmount),
+                data.paymentsLeft),
             readOnly = true,
         },
         {
@@ -62,7 +65,8 @@ local function showVehicleFinanceMenu(data)
             onSelect = function()
                 local check = confirmationCheck()
                 if check == 'confirm' then
-                    TriggerServerEvent('qbx_vehicleshop:server:financePaymentFull', {vehBalance = data.balance, vehPlate = data.vehiclePlate})
+                    TriggerServerEvent('qbx_vehicleshop:server:financePaymentFull',
+                        { vehBalance = data.balance, vehPlate = data.vehiclePlate })
                 else
                     lib.showContext('vehicleFinance')
                 end
@@ -92,7 +96,7 @@ local function showFinancedVehiclesMenu()
             local plate = v.plate:upper()
             ownedVehicles[#ownedVehicles + 1] = {
                 title = name,
-                description = locale('menus.veh_platetxt')..plate,
+                description = locale('menus.veh_platetxt') .. plate,
                 icon = 'fa-solid fa-car-side',
                 arrow = true,
                 onSelect = function()
@@ -152,20 +156,22 @@ end
 ---@param targetShowroomVehicle integer vehicleName
 ---@param buyVehicle string model
 local function openFinance(targetShowroomVehicle, buyVehicle)
-    local dialog = lib.inputDialog(VEHICLES[buyVehicle].brand:upper()..' '..VEHICLES[buyVehicle].name:upper()..' - $'..getVehPrice(targetShowroomVehicle), {
-        {
-            type = 'number',
-            label = locale('menus.financesubmit_downpayment')..sharedConfig.finance.minimumDown..'%',
-            min = VEHICLES[buyVehicle].price * sharedConfig.finance.minimumDown / 100,
-            max = VEHICLES[buyVehicle].price
-        },
-        {
-            type = 'number',
-            label = locale('menus.financesubmit_totalpayment')..sharedConfig.finance.maximumPayments,
-            min = 2,
-            max = sharedConfig.finance.maximumPayments
-        }
-    })
+    local dialog = lib.inputDialog(
+        VEHICLES[buyVehicle].brand:upper() ..
+        ' ' .. VEHICLES[buyVehicle].name:upper() .. ' - $' .. getVehPrice(targetShowroomVehicle), {
+            {
+                type = 'number',
+                label = locale('menus.financesubmit_downpayment') .. sharedConfig.finance.minimumDown .. '%',
+                min = VEHICLES[buyVehicle].price * sharedConfig.finance.minimumDown / 100,
+                max = VEHICLES[buyVehicle].price
+            },
+            {
+                type = 'number',
+                label = locale('menus.financesubmit_totalpayment') .. sharedConfig.finance.maximumPayments,
+                min = 2,
+                max = sharedConfig.finance.maximumPayments
+            }
+        })
 
     if not dialog then return end
 
@@ -185,13 +191,13 @@ local function openVehCatsMenu(category, targetVehicle)
     for k, v in pairs(VEHICLES) do
         if VEHICLES[k].category == category then
             if config.vehicles[k] == nil then
-                lib.print.debug('Vehicle not found in config.vehicles. Skipping: '..k)
+                lib.print.debug('Vehicle not found in config.vehicles. Skipping: ' .. k)
             elseif type(config.vehicles[k].shop) == 'table' then
                 for _, shop in pairs(config.vehicles[k].shop) do
                     if shop == insideShop then
                         vehMenu[#vehMenu + 1] = {
-                            title = v.brand..' '..v.name,
-                            description = locale('menus.veh_price')..lib.math.groupdigits(v.price),
+                            title = v.brand .. ' ' .. v.name,
+                            description = locale('menus.veh_price') .. lib.math.groupdigits(v.price),
                             serverEvent = 'qbx_vehicleshop:server:swapVehicle',
                             args = {
                                 toVehicle = v.model,
@@ -203,8 +209,8 @@ local function openVehCatsMenu(category, targetVehicle)
                 end
             elseif config.vehicles[k].shop == insideShop then
                 vehMenu[#vehMenu + 1] = {
-                    title = v.brand..' '..v.name,
-                    description = locale('menus.veh_price')..lib.math.groupdigits(v.price),
+                    title = v.brand .. ' ' .. v.name,
+                    description = locale('menus.veh_price') .. lib.math.groupdigits(v.price),
                     serverEvent = 'qbx_vehicleshop:server:swapVehicle',
                     args = {
                         toVehicle = v.model,
@@ -273,20 +279,21 @@ end
 ---@param targetVehicle integer
 local function openCustomFinance(targetVehicle)
     local vehicle = config.shops[insideShop].showroomVehicles[targetVehicle].vehicle
-    local dialog = lib.inputDialog(getVehBrand(targetVehicle):upper()..' '..vehicle:upper()..' - $'..getVehPrice(targetVehicle), {
-        {
-            type = 'number',
-            label = locale('menus.financesubmit_downpayment')..sharedConfig.finance.minimumDown..'%',
-        },
-        {
-            type = 'number',
-            label = locale('menus.financesubmit_totalpayment')..sharedConfig.finance.maximumPayments,
-        },
-        {
-            type = 'number',
-            label = locale('menus.submit_ID'),
-        }
-    })
+    local dialog = lib.inputDialog(
+        getVehBrand(targetVehicle):upper() .. ' ' .. vehicle:upper() .. ' - $' .. getVehPrice(targetVehicle), {
+            {
+                type = 'number',
+                label = locale('menus.financesubmit_downpayment') .. sharedConfig.finance.minimumDown .. '%',
+            },
+            {
+                type = 'number',
+                label = locale('menus.financesubmit_totalpayment') .. sharedConfig.finance.maximumPayments,
+            },
+            {
+                type = 'number',
+                label = locale('menus.submit_ID'),
+            }
+        })
 
     if not dialog then return end
 
@@ -380,11 +387,11 @@ local function openVehicleSellMenu(targetVehicle)
         options[#options + 1] = swapOption
     else
         options[1] = {
-                title = locale('menus.managed_sell_header'),
-                description = locale('menus.managed_sell_txt'),
-                onSelect = function()
-                    sellVehicle(vehicle)
-                end,
+            title = locale('menus.managed_sell_header'),
+            description = locale('menus.managed_sell_txt'),
+            onSelect = function()
+                sellVehicle(vehicle)
+            end,
         }
 
         if config.enableTestDrive then
@@ -412,7 +419,8 @@ local function openVehicleSellMenu(targetVehicle)
 
     lib.registerContext({
         id = 'vehicleMenu',
-        title = getVehBrand(targetVehicle):upper()..' '..getVehName(targetVehicle):upper()..' - $'..getVehPrice(targetVehicle),
+        title = getVehBrand(targetVehicle):upper() ..
+            ' ' .. getVehName(targetVehicle):upper() .. ' - $' .. getVehPrice(targetVehicle),
         options = options
     })
     lib.showContext('vehicleMenu')
@@ -434,7 +442,12 @@ local function startTestDriveTimer(time)
                 inTestDrive = false
                 exports.qbx_core:Notify(locale('general.testdrive_complete'), 'success')
             end
-            qbx.drawText2d({ text = locale('general.testdrive_timer')..math.ceil(time - secondsLeft / 1000), coords = vec2(1.0, 1.38), scale = 0.5})
+            qbx.drawText2d({
+                text = locale('general.testdrive_timer') .. math.ceil(time - secondsLeft / 1000),
+                coords =
+                    vec2(1.0, 1.38),
+                scale = 0.5
+            })
             Wait(0)
         end
     end)
@@ -462,7 +475,7 @@ end
 ---@param shopName string
 ---@param coords vector4
 ---@param targetVehicle number
-local function createVehicleZone(shopName, coords, targetVehicle)
+local function createVehicleZone(shopName, shopType, coords, targetVehicle)
     local shop = config.shops[shopName]
     lib.zones.box({
         coords = coords.xyz,
@@ -470,12 +483,20 @@ local function createVehicleZone(shopName, coords, targetVehicle)
         rotation = coords.w,
         debug = config.debugPoly,
         onEnter = function()
-            local job = config.shops[insideShop].job
+            local job
+            if shopType == 'managed' then
+                job = config.shops[insideShop].job or false
+            end
+
             if job and QBX.PlayerData.job.name ~= job then return end
             lib.showTextUI(locale('menus.keypress_vehicleViewMenu'))
         end,
         inside = function()
-            local job = config.shops[insideShop].job
+            local job
+            if shopType == 'managed' then
+                job = config.shops[insideShop].job or false
+            end
+
             if not IsControlJustPressed(0, 38) or job and QBX.PlayerData.job.name ~= job then return end
             openVehicleSellMenu(targetVehicle)
         end,
@@ -554,6 +575,7 @@ local function init()
     CreateThread(function()
         for shopName in pairs(config.shops) do
             local showroomVehicles = config.shops[shopName].showroomVehicles
+            local shopType = config.shops[shopName].type
             for i = 1, #showroomVehicles do
                 local showroomVehicle = showroomVehicles[i]
                 local veh = createShowroomVehicle(showroomVehicle.vehicle, showroomVehicle.coords)
@@ -561,7 +583,7 @@ local function init()
                 if config.useTarget then
                     createVehicleTarget(shopName, veh, i)
                 else
-                    createVehicleZone(shopName, showroomVehicle.coords, i)
+                    createVehicleZone(shopName, shopType, showroomVehicle.coords, i)
                 end
             end
         end
@@ -595,7 +617,7 @@ RegisterNetEvent('qbx_vehicleshop:client:testDrive', function(args)
 
     inTestDrive = true
     local testDrive = config.shops[insideShop].testDrive
-    local plate = 'TEST'..lib.string.random('1111')
+    local plate = 'TEST' .. lib.string.random('1111')
     local netId = lib.callback.await('qbx_vehicleshop:server:spawnVehicle', false, args.vehicle, testDrive.spawn, plate)
     testDriveVeh = netId
     exports.qbx_core:Notify(locale('general.testdrive_timenoti', testDrive.limit), 'inform')
@@ -633,8 +655,10 @@ end)
 ---@param vehicle number
 ---@param plate string
 RegisterNetEvent('qbx_vehicleshop:client:buyShowroomVehicle', function(vehicle, plate)
-    local tempShop = insideShop -- temp hacky way of setting the shop because it changes after the callback has returned since you are outside the zone
-    local netId = lib.callback.await('qbx_vehicleshop:server:spawnVehicle', false, vehicle, config.shops[tempShop].vehicleSpawn, plate)
+    local tempShop =
+        insideShop -- temp hacky way of setting the shop because it changes after the callback has returned since you are outside the zone
+    local netId = lib.callback.await('qbx_vehicleshop:server:spawnVehicle', false, vehicle,
+        config.shops[tempShop].vehicleSpawn, plate)
     local veh = NetToVeh(netId)
     local props = lib.getVehicleProperties(veh)
     props.plate = plate
@@ -662,7 +686,8 @@ local function confirmTrade(confirmationText)
 end
 
 lib.callback.register('qbx_vehicleshop:client:confirmTrade', function(vehicle, sellAmount)
-    local confirmationText = locale('general.transfervehicle_confirm', VEHICLES_HASH[vehicle].brand, VEHICLES_HASH[vehicle].name, lib.math.groupdigits(sellAmount) or 0)
+    local confirmationText = locale('general.transfervehicle_confirm', VEHICLES_HASH[vehicle].brand,
+        VEHICLES_HASH[vehicle].name, lib.math.groupdigits(sellAmount) or 0)
     if GetResourceState('npwd') ~= 'started' then
         local input = lib.inputDialog(confirmationText, {
             {
